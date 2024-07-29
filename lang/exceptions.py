@@ -1,0 +1,3 @@
+class LangException(Exception):
+
+    pass
