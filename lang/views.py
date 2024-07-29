@@ -3,26 +3,8 @@ from django.shortcuts import render
 from django.core.files.base import ContentFile
 
 from .models import Translate
-from .utils import record_track
+from .utils import record_track, get_translate_text
 
-
-
-LANGUAGES = {
-    'en': 'English',
-    'de': 'Deutsch',
-    'fr': 'Français',
-    'ru': 'Русский',
-    'uk': 'Українська',
-    'pl': 'Polski',
-}
-TRANSLATE = {
-    'English': 'en',
-    'Deutsch': 'de',
-    'Français': 'fr',
-    'Русский': 'ru',
-    'Українська': 'uk',
-    'Polski': 'pl',
-}
 
 def index(request):
     """Translate text."""
@@ -32,21 +14,13 @@ def index(request):
         text_for_translate = request_data['text_for_translate']
         language_to = request_data['languages']
 
-        translate_to = TRANSLATE.get(language_to, 'en')
-
-        translator = Translator()
-
-        answer = translator.detect(text_for_translate).lang
-
-        translate = translator.translate(text_for_translate, dest=translate_to)
-
-        translated_text = translate.text
+        translated_text, translate_from, translate_to = get_translate_text(language_to, text_for_translate)
 
         translate_object = Translate.objects.create()
         name = ''.join(('track', '-', str(translate_object.pk)))
         translate_object.title = name
 
-        mp3_file_1 = record_track(text_to_record=text_for_translate, language=answer)
+        mp3_file_1 = record_track(text_to_record=text_for_translate, language=translate_from)
         translate_object.file_one.save(
             name=name + '_1',
             content=ContentFile(mp3_file_1.getvalue()),
