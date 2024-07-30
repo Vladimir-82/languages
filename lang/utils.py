@@ -1,13 +1,18 @@
-from googletrans import Translator
-from gtts import gTTS
+"""Auxiliary tools language identifier."""
+
 from io import BytesIO
 
-from lang.structures import languages
+from django.core.files.base import ContentFile
+from googletrans import Translator
+from gtts import gTTS
+
+from lang.models import Translate
+from lang.structures import language
 
 
-def get_translate_text(language_to: str, text_for_translate: str) -> tuple[str, str, str]:
+def get_translate_text(language_to: str, text_for_translate: str) -> tuple[str, str, str]:  # noqa: E501
     """Get translated_text and language."""
-    translate_to = languages.translate.get(language_to, 'en')
+    translate_to = language.translate.get(language_to, 'en')
     translator = Translator()
 
     translate_from = translator.detect(text_for_translate).lang
@@ -16,9 +21,50 @@ def get_translate_text(language_to: str, text_for_translate: str) -> tuple[str, 
     return translated.text, translate_from, translate_to
 
 
-def record_track(text_to_record: str, language: str) -> BytesIO:
+def create_translate_object(
+    text_for_translate: str,
+    translate_from: str,
+    translated_text: str,
+    translate_to: str,
+) -> Translate:
+    """Create translated object."""
+    translate_object = Translate.objects.create()
+    object_name = save_title_name(translate_object)
+
+    save_track(text_for_translate, translate_from, translate_object, object_name, 'file_one')  # noqa: E501
+    save_track(translated_text, translate_to, translate_object, object_name, 'file_two')  # noqa: E501
+
+    translate_object.save()
+
+    return translate_object
+
+
+def save_track(
+    text_to_record: str,
+    language_record: str,
+    translate_object: Translate,
+    object_name: str,
+    file_number: str,
+) -> None:  # noqa: E501
+    """Save track of the translated object."""
+    file_1 = record_track(text_to_record=text_to_record, language_record=language_record)  # noqa: E501
+    getattr(translate_object, file_number).save(
+        name=''.join((object_name, '_1')),
+        content=ContentFile(file_1.getvalue()),
+        save=False,
+    )
+
+
+def save_title_name(translate_object: Translate) -> str:
+    """Save title name of the translated object."""
+    object_name = ''.join(('track', '-', str(translate_object.pk)))
+    translate_object.title = object_name
+    return object_name
+
+
+def record_track(text_to_record: str, language_record: str) -> BytesIO:
     """Record text to speak."""
     file_to_record = BytesIO()
-    tts = gTTS(text_to_record, lang=language)
+    tts = gTTS(text_to_record, lang=language_record)
     tts.write_to_fp(file_to_record)
     return file_to_record

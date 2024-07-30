@@ -1,4 +1,4 @@
-"""Translate text."""
+"""Models language identifier."""
 
 from django.db import models
 

@@ -1,13 +1,13 @@
-from googletrans import Translator
-from django.shortcuts import render
-from django.core.files.base import ContentFile
+"""Views language identifier."""
 
-from .models import Translate
-from .utils import record_track, get_translate_text
+from django.shortcuts import render
+
+from .structures import language
+from .utils import get_translate_text, create_translate_object
 
 
 def index(request):
-    """Translate text."""
+    """Language identifier."""
     if request.method == 'POST':
         request_data = request.POST
 
@@ -16,26 +16,10 @@ def index(request):
 
         translated_text, translate_from, translate_to = get_translate_text(language_to, text_for_translate)
 
-        translate_object = Translate.objects.create()
-        name = ''.join(('track', '-', str(translate_object.pk)))
-        translate_object.title = name
+        translate_object = create_translate_object(text_for_translate, translate_from, translated_text, translate_to)
 
-        mp3_file_1 = record_track(text_to_record=text_for_translate, language=translate_from)
-        translate_object.file_one.save(
-            name=name + '_1',
-            content=ContentFile(mp3_file_1.getvalue()),
-            save=False,
-        )
-        mp3_file_2 = record_track(text_to_record=translated_text, language=translate_to)
-        translate_object.file_two.save(
-            name=name + '_2',
-            content=ContentFile(mp3_file_2.getvalue()),
-            save=False,
-        )
-        translate_object.save()
-
-        language_input = LANGUAGES.get(answer)
-        language_output = LANGUAGES.get(translate_to)
+        language_input = language.language.get(translate_from)
+        language_output = language.language.get(translate_to)
         translate_data_to_render = {
             "language_input": language_input,
             "text_for_translate": text_for_translate,

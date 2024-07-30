@@ -1,15 +1,17 @@
+"""Auxiliary structures."""
+
 from dataclasses import dataclass
 
 
 @dataclass
-class Languages:
+class Language:
     """Auxiliary structures."""
 
-    Languages: dict
+    language: dict
     translate: dict
 
 
-languages = Languages(
+language = Language(
     {
         'en': 'English',
         'de': 'Deutsch',
