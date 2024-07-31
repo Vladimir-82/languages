@@ -10,7 +10,7 @@ from lang.models import Translate
 from lang.structures import language
 
 
-def get_translate_text(language_to: str, text_for_translate: str) -> tuple[str, str, str]:  # noqa: E501
+def get_translate_text(language_to: str, text_for_translate: str) -> tuple[str, str, str]:
     """Get translated_text and language."""
     translate_to = language.translate.get(language_to, 'en')
     translator = Translator()
@@ -31,8 +31,8 @@ def create_translate_object(
     translate_object = Translate.objects.create()
     object_name = save_title_name(translate_object)
 
-    save_track(text_for_translate, translate_from, translate_object, object_name, 'file_one')  # noqa: E501
-    save_track(translated_text, translate_to, translate_object, object_name, 'file_two')  # noqa: E501
+    save_track(text_for_translate, translate_from, translate_object, object_name, 'file_one')
+    save_track(translated_text, translate_to, translate_object, object_name, 'file_two')
 
     translate_object.save()
 
@@ -47,7 +47,7 @@ def save_track(
     file_number: str,
 ) -> None:  # noqa: E501
     """Save track of the translated object."""
-    file_1 = record_track(text_to_record=text_to_record, language_record=language_record)  # noqa: E501
+    file_1 = record_track(text_to_record=text_to_record, language_record=language_record)
     getattr(translate_object, file_number).save(
         name=''.join((object_name, '_1')),
         content=ContentFile(file_1.getvalue()),
