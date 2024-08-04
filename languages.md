@@ -8,6 +8,7 @@ Supported languages:
  - Русский
  - Українська
  - Polski
+
 Without specifying the target language, the translation is into English.
 
 There is an option to listen to both the source text and the translation.
